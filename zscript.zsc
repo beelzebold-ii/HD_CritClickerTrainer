@@ -1,0 +1,95 @@
+version "4.14.2"
+
+class CritClickerHandler:EventHandler {
+	
+	static const string critSounds[] = {
+		"clicker",
+		"metalgear",
+		"ping",
+		"earthbound",
+		"teamfort"
+	};
+	
+	override void WorldThingDamaged(WorldEvent e){
+		bool printconsole = false;
+		bool sourcelog = cvar.GetCVar("hdcritclicker_log",players[consoleplayer]).GetBool();
+		bool printinfo = cvar.GetCVar("hdcritclicker_info",players[consoleplayer]).GetBool();
+		bool onlyprintoncrit = cvar.GetCVar("hdcritclicker_critonly",players[consoleplayer]).GetBool();
+		bool ignorefragments = true;
+		
+		if(e.DamageType == "bashing" && e.Inflictor is "HDBulletActor"){
+			//an HDBulletActor has dealt bashing damage to something
+			//as far as I'm aware, this is called once per bullet impact
+			//and is called every bullet impact
+			//(or at least every impact relevant to crits?)
+			//(idk if bullet-shield impacts do bashing)
+			
+			//it does actually seem as though in some cases an actor which is
+			//already significantly mangled won't receive this bashing damage.
+			//this is probably not really a problem, but I guess I'll see how
+			//common it is.
+			
+			if(e.Thing.countinv("HDMagicShield") > 0) return;
+			if(ignorefragments == true && e.Inflictor.GetClassName() == "HDBulletActor") return;
+			
+			bool iscritzone = false;
+			bool toolow = false;
+			
+			//if I was STUPID and didn't look well enough at the stepping code
+			//in HDBulletActor, then I would get hitpos with a bullet linetracer.
+			//which I'm not btw. I totally checked before writing this.
+			
+			//instead, I'm smart and automagically knew that the bullet's
+			//position is set to the hitpos, stepped back by a tenth of its
+			//velocity's unit vector. this happens shortly before OnHitActor.
+			vector3 hitpos = e.Inflictor.pos + (e.Inflictor.vel.unit() * 0.1);
+			
+			double mincritheight = e.Thing.height*0.6;
+			double basehitz = hitpos.z - e.Thing.pos.z;
+			
+			//is our shot high enough to hit the cns?
+			if(basehitz > mincritheight){
+				//we're above the waist now
+				toolow = false;
+			}else{
+				toolow = true;
+			}
+			
+			double hitangle = actor.absangle(e.Inflictor.angle,e.Inflictor.angleto(e.Thing));
+			double tinyspeedsquared = e.Inflictor.speed * e.Inflictor.speed * 0.000001;
+			
+			//is our shot centered enough?
+			if(hitangle < 12+frandom(0,tinyspeedsquared*7+e.Inflictor.stamina*0.001)){
+				
+				//again, is our shot high enough to hit the cns?
+				//I'm not messing with calculating bullet penetration, sorry.
+				if(toolow==false){
+					//we've got a CRIT!!!
+					iscritzone = true;
+					
+					cvar sfx = cvar.GetCVar("hdcritclicker_sound",players[consoleplayer]);
+					cvar vol = cvar.GetCVar("hdcritclicker_vol",players[consoleplayer]);
+					e.DamageSource.A_StartSound("critsnd/"..critSounds[sfx.GetInt()],CHAN_AUTO,0,vol.GetFloat(),ATTN_STATIC);
+				}
+			}
+			
+			if(printconsole){
+				console.printf(e.Inflictor.GetClassName().." hit "..e.Thing.GetClassName());
+				console.printf(string.format("Angle deviation: %.1f",hitangle));
+				if(toolow)
+					console.printf("Shot placed too low.");
+				if(iscritzone) console.printf("CRIT!!!");
+			}else{
+				if(sourcelog && (onlyprintoncrit == false || iscritzone == true)){
+					e.DamageSource.A_Log("Bullet hit "..e.Thing.GetTag(),true);
+					if(printinfo){
+						e.DamageSource.A_Log(string.format("Angle deviation: %.1f",hitangle),true);
+						if(toolow)
+							e.DamageSource.A_Log("Shot placed too low.",true);
+					}
+					if(iscritzone) e.DamageSource.A_Log("CRIT!!!",true);
+				}
+			}
+		}
+	}
+}

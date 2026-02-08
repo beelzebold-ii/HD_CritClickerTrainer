@@ -1,0 +1,5 @@
+user int hdcritclicker_sound = 0;
+user float hdcritclicker_vol = 1.0;
+user bool hdcritclicker_log = false;
+user bool hdcritclicker_info = true;
+user bool hdcritclicker_critonly = false;

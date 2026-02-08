@@ -1,0 +1,24 @@
+OptionValue "critclickersound"{
+	0, "Training Clicker"
+	1, "MGSO Headshot"
+	2, "Ping"
+	3, "Earthbound Crit"
+	4, "TF2 Crit"
+}
+
+OptionMenu "critclickeropts"{
+	Title "CNS Clicker Trainer"
+	StaticText " "
+	Option "Crit Sound", "hdcritclicker_sound", "critclickersound"
+	Slider "Crit Sound Volume", "hdcritclicker_vol", 0.0, 1.0, 0.1, 1
+	StaticText " "
+	StaticText "If you want to effectively train, you'll need to"
+	StaticText "know how far off you are from the crit zone."
+	Option "Log Hits to Console", "hdcritclicker_log", "YesNo"
+	Option "Log Accuracy Info", "hdcritclicker_info", "YesNo", "hdcritclicker_log"
+	Option "Only Log on Crits", "hdcritclicker_critonly", "YesNo", "hdcritclicker_log"
+}
+
+AddOptionMenu "OptionsMenu"{
+	SubMenu "CNS Clicker Trainer Options", "critclickeropts"
+}

@@ -1,0 +1,13 @@
+critsnd/clicker1 = CLICKER1
+critsnd/clicker2 = CLICKER2
+critsnd/clicker3 = CLICKER3
+critsnd/clicker4 = CLICKER4
+$random critsnd/clicker { critsnd/clicker1 critsnd/clicker2 critsnd/clicker3 critsnd/clicker4 }
+
+critsnd/teamfort = TFTCRIT
+
+critsnd/metalgear = MGSHEAD
+
+critsnd/ping = PING
+
+critsnd/earthbound = SMASH
