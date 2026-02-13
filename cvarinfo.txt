@@ -3,3 +3,5 @@ user float hdcritclicker_vol = 1.0;
 user bool hdcritclicker_log = false;
 user bool hdcritclicker_info = true;
 user bool hdcritclicker_critonly = false;
+user bool hdcritclicker_checkpen = true;
+user string hdcritclicker_blacklist = "hdb_00,hdb_frag,hdb_fragrl,hdb_fragbronto,hdb_scrap,hdb_scrapdb,hdbulletactor";

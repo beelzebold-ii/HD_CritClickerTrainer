@@ -12,11 +12,23 @@ OptionMenu "critclickeropts"{
 	Option "Crit Sound", "hdcritclicker_sound", "critclickersound"
 	Slider "Crit Sound Volume", "hdcritclicker_vol", 0.0, 1.0, 0.1, 1
 	StaticText " "
+	StaticText "Crits only count if the round penetrates to the"
+	StaticText "center of the target. This isn't 100% accurate"
+	StaticText "and is very subject to random chance."
+	Option "Check Penetration", "hdcritclicker_checkpen", "YesNo"
+	StaticText " "
 	StaticText "If you want to effectively train, you'll need to"
 	StaticText "know how far off you are from the crit zone."
 	Option "Log Hits to Console", "hdcritclicker_log", "YesNo"
 	Option "Log Accuracy Info", "hdcritclicker_info", "YesNo", "hdcritclicker_log"
 	Option "Only Log on Crits", "hdcritclicker_critonly", "YesNo", "hdcritclicker_log"
+	StaticText " "
+	StaticText " "
+	StaticText "Modify the blacklist with the cvar hdcritclicker_blacklist"
+	StaticText "Entries are separated by commas. Default includes:"
+	StaticText "Buckshot, shrapnel, and fragmented bullet pieces."
+	StaticText " "
+	StaticText "(Fragments are simply HDBulletActor)"
 }
 
 AddOptionMenu "OptionsMenu"{

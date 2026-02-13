@@ -10,7 +10,23 @@ class CritClickerHandler:EventHandler {
 		"teamfort"
 	};
 	
+	array<string> blacklist;
+	
 	override void WorldThingDamaged(WorldEvent e){
+		if(blacklist.Size()<=0){
+			//console.printf("blacklist populated");
+			string liststr = cvar.GetCVar("hdcritclicker_blacklist",players[consoleplayer]).GetString();
+			//remove spaces
+			liststr.Substitute(" ","");
+			liststr = liststr.MakeLower();
+			//populate our array
+			liststr.Split(blacklist,",",TOK_SKIPEMPTY);
+			
+			//add a string that can't match any bullet's classname to prevent the
+			//array from being populated more than once
+			blacklist.Push("object");
+		}
+		
 		bool printconsole = false;
 		bool sourcelog = cvar.GetCVar("hdcritclicker_log",players[consoleplayer]).GetBool();
 		bool printinfo = cvar.GetCVar("hdcritclicker_info",players[consoleplayer]).GetBool();
@@ -29,8 +45,18 @@ class CritClickerHandler:EventHandler {
 			//this is probably not really a problem, but I guess I'll see how
 			//common it is.
 			
+			//if the bullet's classname is in the blacklist, don't report anything
+			//need to do some shenanigans to make it not case sensitive
+			string classn = e.Inflictor.GetClassName();
+			classn = classn.MakeLower();
+			if(blacklist.Find(classn) < blacklist.Size()) return;
+			//don't report *anything* about bullet>shield hits
 			if(e.Thing.countinv("HDMagicShield") > 0) return;
-			if(ignorefragments == true && e.Inflictor.GetClassName() == "HDBulletActor") return;
+			//all crits are discarded if this returns true
+			//but this just means that the tempcavity shockbash damage just outright killed them
+			//we should still reward the trainee in this case for their desired behavior
+			//console.printf("shockbash: "..e.Damage);
+			//if(HDMath.IsDead(e.Thing)) return;
 			
 			bool iscritzone = false;
 			bool toolow = false;
@@ -66,12 +92,62 @@ class CritClickerHandler:EventHandler {
 				if(toolow==false){
 					//we've got a CRIT!!!
 					iscritzone = true;
-					
-					cvar sfx = cvar.GetCVar("hdcritclicker_sound",players[consoleplayer]);
-					cvar vol = cvar.GetCVar("hdcritclicker_vol",players[consoleplayer]);
-					e.DamageSource.A_StartSound("critsnd/"..critSounds[sfx.GetInt()],CHAN_AUTO,0,vol.GetFloat(),ATTN_STATIC);
 				}
 			}
+			
+			bool pentocore = true; //if the round penetrates to the core of the target
+			bool checkpen = cvar.GetCVar("hdcritclicker_checkpen",players[consoleplayer]).GetBool();
+			if(iscritzone && checkpen){
+				//check penetration only if the crit would be valid right now
+				//hehehehe hehehe shut up
+				double penetration = HDBulletActor(e.Inflictor).Penetration();
+				double deemedwidth = e.Thing.radius * 1.8; //minimum possible, meaning if a crit *can* happen we'll click it
+				
+				//we also need to check the target's "penshell" (innate bullet resistance/armor)
+				if(e.Thing is 'HDActor'){
+					HDActor hdaa = HDActor(e.Thing);
+					
+					//determine bullet resistance ([code mostly ripped from hdest])
+					double penshell=max(hdaa.bulletresistance(hitangle),hdaa.bulletshell(hitpos,hitangle));
+					
+					//WE WILL BE SKIPPING HDDAMAGEHANDLERS
+					//I don't want bullets to accidentally end up damaging armor twice
+					//or really for this to affect the play scope at all. cos desyncs and stuff.
+					
+					//I still don't know if this is even remotely netplay compatible.
+					//someone else will have to test that for me or let me know just by
+					//what they see here in the code! until then I will ignore the
+					//very likely problem.
+					
+					if(penshell<=0)penshell=0;
+					else penshell*=1.-frandom(0,hitangle*0.004);
+					
+					//console.printf("penshell: "..penshell);
+					
+					//apply final armour
+					penetration-=penshell;
+				}
+				
+				//console.printf("penetration: "..penetration.."; necessary depth "..deemedwidth*0.4);
+				
+				//if the bullet does not go to the center fifth of the target
+				//then we throw out the crit.
+				if(penetration <= deemedwidth*0.4){
+					iscritzone = false;
+					//and report the reason why for the console logging code
+					pentocore = false;
+				}
+			}
+			
+			//crit confirmation will happen after it's already thoroughly calculated,
+			//in case something after the other calculations invalidates the crit.
+			if(iscritzone){
+				cvar sfx = cvar.GetCVar("hdcritclicker_sound",players[consoleplayer]);
+				cvar vol = cvar.GetCVar("hdcritclicker_vol",players[consoleplayer]);
+				e.DamageSource.A_StartSound("critsnd/"..critSounds[sfx.GetInt()],CHAN_AUTO,0,vol.GetFloat(),ATTN_STATIC);
+			}
+			
+			if(!e.DamageSource || !(e.DamageSource is "playerpawn")) return;
 			
 			if(printconsole){
 				console.printf(e.Inflictor.GetClassName().." hit "..e.Thing.GetClassName());
@@ -81,11 +157,13 @@ class CritClickerHandler:EventHandler {
 				if(iscritzone) console.printf("CRIT!!!");
 			}else{
 				if(sourcelog && (onlyprintoncrit == false || iscritzone == true)){
-					e.DamageSource.A_Log("Bullet hit "..e.Thing.GetTag(),true);
 					if(printinfo){
+						e.DamageSource.A_Log("Bullet hit "..e.Thing.GetTag(),true);
 						e.DamageSource.A_Log(string.format("Angle deviation: %.1f",hitangle),true);
 						if(toolow)
 							e.DamageSource.A_Log("Shot placed too low.",true);
+						if(!pentocore)
+							e.DamageSource.A_Log("Shot didn't penetrate to CNS.",true);
 					}
 					if(iscritzone) e.DamageSource.A_Log("CRIT!!!",true);
 				}
