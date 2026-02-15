@@ -7,7 +7,13 @@ class CritClickerHandler:EventHandler {
 		"metalgear",
 		"ping",
 		"earthbound",
-		"teamfort"
+		"teamfort",
+		"bltflesh",
+		"bltclean",
+		"jetset1",
+		"jetset2",
+		"jetset3",
+		"custom"
 	};
 	
 	array<string> blacklist;

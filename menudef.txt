@@ -4,6 +4,12 @@ OptionValue "critclickersound"{
 	2, "Ping"
 	3, "Earthbound Crit"
 	4, "TF2 Crit"
+	5, "Fleshy Bullet Impact"
+	6, "Clean Bullet Impact"
+	7, "Jet Set Radio Single"
+	8, "Jet Set Radio Triple"
+	9, "Jet Set Radio Full"
+	10, "Custom"
 }
 
 OptionMenu "critclickeropts"{
@@ -11,6 +17,8 @@ OptionMenu "critclickeropts"{
 	StaticText " "
 	Option "Crit Sound", "hdcritclicker_sound", "critclickersound"
 	Slider "Crit Sound Volume", "hdcritclicker_vol", 0.0, 1.0, 0.1, 1
+	StaticText "Custom sounds must be defined in SNDINFO as"
+	StaticText "critsnd/custom; audio can be any loaded sound"
 	StaticText " "
 	StaticText "Crits only count if the round penetrates to the"
 	StaticText "center of the target. This isn't 100% accurate"

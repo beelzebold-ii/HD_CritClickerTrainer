@@ -11,3 +11,27 @@ critsnd/metalgear = MGSHEAD
 critsnd/ping = PING
 
 critsnd/earthbound = SMASH
+
+critsnd/bulletflesh1 = BLTFLSH1
+critsnd/bulletflesh2 = BLTFLSH2
+critsnd/bulletflesh3 = BLTFLSH3
+critsnd/bulletflesh4 = BLTFLSH4
+critsnd/bulletflesh5 = BLTFLSH5
+critsnd/bulletflesh6 = BLTFLSH6
+$random critsnd/bltflesh { critsnd/bulletflesh1 critsnd/bulletflesh2 critsnd/bulletflesh3 critsnd/bulletflesh4 critsnd/bulletflesh5 critsnd/bulletflesh6 }
+
+critsnd/bulletclean1 = BLTHIT1
+critsnd/bulletclean2 = BLTHIT2
+critsnd/bulletclean3 = BLTHIT3
+critsnd/bulletclean4 = BLTHIT4
+critsnd/bulletclean5 = BLTHIT5
+critsnd/bulletclean6 = BLTHIT6
+$random critsnd/bltclean { critsnd/bulletclean1 critsnd/bulletclean2 critsnd/bulletclean3 critsnd/bulletclean4 critsnd/bulletclean5 critsnd/bulletclean6 }
+
+critsnd/jetset1a = JETSET1A
+critsnd/jetset1b = JETSET1B
+$random critsnd/jetset1 { critsnd/jetset1a critsnd/jetset1b }
+
+critsnd/jetset2 = JETSET2
+
+critsnd/jetset3 = JETSET3
